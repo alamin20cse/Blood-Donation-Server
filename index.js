@@ -36,6 +36,7 @@ async function run() {
 
     const districtsCollection=client.db('bloodDonationDB').collection('districts');
     const upazilasCollection=client.db('bloodDonationDB').collection('upazilas');
+    const usersCollection=client.db('bloodDonationDB').collection('users');
 
 
 
@@ -58,6 +59,20 @@ async function run() {
         res.send(result);
 
 
+    })
+
+
+    // post user
+    
+
+    app.post('/users',async(req,res)=>{
+        const newUser=req.body;
+        // console.log(newUser);
+        const result=await usersCollection.insertOne(newUser);
+        res.send(result);
+        
+
+        
     })
 
 
