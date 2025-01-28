@@ -82,6 +82,12 @@ async function run() {
         const result=await usersCollection.find(query).toArray();
         res.send(result);
     })
+    // get all user
+    app.get('/allusers',async(req,res)=>{
+       
+        const result=await usersCollection.find().toArray();
+        res.send(result);
+    })
 
 
      // post donation-requests
