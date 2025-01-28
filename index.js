@@ -72,7 +72,6 @@ async function run() {
         
    
     })
-
     // get user
     app.get('/users',async(req,res)=>{
         const email=req.query.email;
@@ -109,8 +108,6 @@ async function run() {
 
 
 
-
-    
 
 
 
