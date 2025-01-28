@@ -37,6 +37,7 @@ async function run() {
     const districtsCollection=client.db('bloodDonationDB').collection('districts');
     const upazilasCollection=client.db('bloodDonationDB').collection('upazilas');
     const usersCollection=client.db('bloodDonationDB').collection('users');
+    const requestsCollection=client.db('bloodDonationDB').collection('donation-requests');
 
 
 
@@ -63,17 +64,50 @@ async function run() {
 
 
     // post user
-    
-
     app.post('/users',async(req,res)=>{
         const newUser=req.body;
         // console.log(newUser);
         const result=await usersCollection.insertOne(newUser);
         res.send(result);
         
-
-        
+   
     })
+
+    // get user
+    app.get('/users',async(req,res)=>{
+        const email=req.query.email;
+        const query={email:email};
+
+
+        const result=await usersCollection.find(query).toArray();
+        res.send(result);
+    })
+
+
+     // post donation-requests
+     app.post('/donation-requests',async(req,res)=>{
+        const newData=req.body;
+        // console.log(newData);
+        const result=await requestsCollection.insertOne(newData);
+        res.send(result);
+        
+   
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
