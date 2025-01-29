@@ -127,6 +127,78 @@ async function run() {
 
 
 
+    // for update get data
+    app.get('/donation-requests-logged-user/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await requestsCollection.findOne(query);
+        res.send(result);
+      });
+
+
+      app.delete('/donation-requests-logged-user/:id', async (req, res) => {  // ✅ Fixed method (was `app.get`, now `app.delete`)
+        try {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await requestsCollection.deleteOne(query);
+            
+            if (result.deletedCount === 1) {
+                res.json({ message: "Deleted successfully", deletedCount: 1 });
+            } else {
+                res.status(404).json({ message: "Donation request not found" });
+            }
+        } catch (error) {
+            console.error("Error deleting request:", error);
+            res.status(500).json({ message: "Internal server error" });
+        }
+    });
+    
+
+
+
+    //   update
+    app.put('/donation-requests/:id', async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+    
+        const updatedRequest = req.body;
+    
+        const updateDoc = {
+            $set: {
+                name: updatedRequest.name,
+                email: updatedRequest.email,
+                bloodgroup: updatedRequest.bloodgroup,
+                districtName: updatedRequest.districtName,
+                districtNameBan: updatedRequest.districtNameBan,
+                upazilaName: updatedRequest.upazilaName,
+                upazilaNameBan: updatedRequest.upazilaNameBan,
+                recipientname: updatedRequest.recipientname,
+                hospitalname: updatedRequest.hospitalname,
+                fulladdress: updatedRequest.fulladdress,
+                donationdate: updatedRequest.donationdate,
+                donationtime: updatedRequest.donationtime,
+                requestmessage: updatedRequest.requestmessage,
+                districtID: updatedRequest.districtID,
+                upazilaID: updatedRequest.upazilaID,
+                status: updatedRequest.status,
+                requestTime: updatedRequest.requestTime,
+                donorID: updatedRequest.donorID,
+                donorEmail: updatedRequest.donorEmail,
+            },
+        };
+    
+        try {
+            const result = await requestsCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        } catch (error) {
+            console.error("Error updating document:", error);
+            res.status(500).send({ error: "Failed to update document" });
+        }
+    });
+
+
+
 
 
 
