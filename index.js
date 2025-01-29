@@ -72,15 +72,16 @@ async function run() {
         
    
     })
-    // get user
+    // get user logged
+
     app.get('/users',async(req,res)=>{
         const email=req.query.email;
         const query={email:email};
 
-
         const result=await usersCollection.find(query).toArray();
         res.send(result);
     })
+
     // get all user
     app.get('/allusers',async(req,res)=>{
        
@@ -96,14 +97,32 @@ async function run() {
         res.send(result);
       });
 
+
+
+
+
+
+
+
+
+
      // post donation-requests
      app.post('/donation-requests',async(req,res)=>{
         const newData=req.body;
         // console.log(newData);
         const result=await requestsCollection.insertOne(newData);
         res.send(result);
-        
-   
+    })
+
+    
+    // for request setion logged user will show
+    
+    app.get('/donation-requests-logged-user',async(req,res)=>{
+        const email=req.query.email;
+        const query = { email: email }; // Filtering by donorEmail
+
+        const result=(await requestsCollection.find(query).sort({ requestTime: -1 }).toArray());
+        res.send(result);
     })
 
 
