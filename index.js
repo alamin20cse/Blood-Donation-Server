@@ -73,7 +73,6 @@ async function run() {
    
     })
     // get user logged
-
     app.get('/users',async(req,res)=>{
         const email=req.query.email;
         const query={email:email};
@@ -98,6 +97,48 @@ async function run() {
       });
 
 
+      
+
+
+
+
+
+      app.patch("/allusers/:id", async (req, res) => {
+        const { id } = req.params;
+        const { status } = req.body;
+    
+        try {
+            const result = await usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { status } });
+            res.json({ success: true, message: "Status updated", result });
+        } catch (error) {
+            res.status(500).json({ success: false, message: "Failed to update status", error });
+        }
+    });
+    
+    app.patch("/allusers/:id/role", async (req, res) => {
+        const { id } = req.params;
+        const { role } = req.body;
+    
+        try {
+            const result = await usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { role } });
+            res.json({ success: true, message: "Role updated", result });
+        } catch (error) {
+            res.status(500).json({ success: false, message: "Failed to update role", error });
+        }
+    });
+        
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -113,6 +154,16 @@ async function run() {
         const result=await requestsCollection.insertOne(newData);
         res.send(result);
     })
+
+    
+    // get all donation-requests
+    app.get('/donation-requests',async(req,res)=>{
+       
+        const result=await requestsCollection.find().toArray();
+        res.send(result);
+    })
+
+
 
     
     // for request setion logged user will show
