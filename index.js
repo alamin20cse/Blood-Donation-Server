@@ -114,7 +114,7 @@ async function run() {
             res.status(500).json({ success: false, message: "Failed to update status", error });
         }
     });
-    
+
     app.patch("/allusers/:id/role", async (req, res) => {
         const { id } = req.params;
         const { role } = req.body;
@@ -162,6 +162,25 @@ async function run() {
         const result=await requestsCollection.find().toArray();
         res.send(result);
     })
+
+    // get all donation-requests SPACIFIC ID
+    app.delete('/donation-requests/:id',async(req,res)=>{
+        const id=req.params.id;
+        const query={_id:new ObjectId(id)} ;
+        const result=await requestsCollection.deleteOne(query);
+        res.send(result);
+  
+      })
+
+
+
+
+
+
+    
+
+
+
 
 
 
