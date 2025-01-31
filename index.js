@@ -38,6 +38,7 @@ async function run() {
     const upazilasCollection=client.db('bloodDonationDB').collection('upazilas');
     const usersCollection=client.db('bloodDonationDB').collection('users');
     const requestsCollection=client.db('bloodDonationDB').collection('donation-requests');
+    const blogCollection=client.db('bloodDonationDB').collection('blog');
 
 
 
@@ -272,7 +273,39 @@ async function run() {
 
 
 
+// blog section
+// post blog
+app.post('/blog',async(req,res)=>{
+    const newData=req.body;
+    // console.log(newData);
+    const result=await blogCollection.insertOne(newData);
+    res.send(result);
+})
+  // get blog
+  app.get('/blog',async(req,res)=>{
+       
+    const result=await blogCollection.find().toArray();
+    res.send(result);
+})
 
+
+app.delete("/blog/:id", async (req, res) => {
+    const { id } = req.params;
+    const result = await blogCollection.deleteOne({ _id: new ObjectId(id) });
+    res.send(result);
+});
+
+app.patch("/blog/:id", async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const result = await blogCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status } }
+    );
+
+    res.send(result);
+});
 
 
 
