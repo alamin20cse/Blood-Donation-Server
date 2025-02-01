@@ -164,7 +164,70 @@ async function run() {
         res.send(result);
     })
 
-    // get all donation-requests SPACIFIC ID
+// get spacific by id donation request
+    app.get('/donation-requests/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await requestsCollection.findOne(query);
+        res.send(result);
+      });
+      
+
+      app.patch("/donation-requests/:id", async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { DonorId, DonorName, DonorEmail, status } = req.body;
+    
+            // Validate ObjectId before querying
+            if (!ObjectId.isValid(id)) {
+                return res.status(400).json({ error: "Invalid request ID" });
+            }
+    
+            const updateResult = await requestsCollection.updateOne(  // ✅ Correct collection used
+                { _id: new ObjectId(id) },
+                {
+                    $set: {
+                        DonorId,
+                        DonorName,
+                        DonorEmail,
+                        status,
+                    },
+                }
+            );
+    
+            if (updateResult.matchedCount === 0) {
+                return res.status(404).json({ error: "Donation request not found" });
+            }
+    
+            res.json({ message: "Donation request updated successfully", updated: updateResult });
+        } catch (error) {
+            console.error("Error updating donation request:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+    
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // get all donation-requests delet
     app.delete('/donation-requests/:id',async(req,res)=>{
         const id=req.params.id;
         const query={_id:new ObjectId(id)} ;
