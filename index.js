@@ -82,6 +82,8 @@ async function run() {
         res.send(result);
     })
 
+
+
     // get all user
     app.get('/allusers',async(req,res)=>{
        
@@ -98,9 +100,57 @@ async function run() {
       });
 
 
+      app.patch("/allusers/:id/edit", async (req, res) => {
+        const { id } = req.params;
+        const {
+            name,
+            email,
+            photo,
+            bloodgroup,
+            districtName,
+            districtNameBan,
+            upazilaName,
+            upazilaNameBan,
+            districtID,
+            upazilaID,
+        } = req.body;
+    
+        try {
+            const result = await usersCollection.updateOne(
+                { _id: new ObjectId(id) },
+                {
+                    $set: {
+                        name,
+                        email,
+                        photo,
+                        bloodgroup,
+                        districtName,
+                        districtNameBan,
+                        upazilaName,
+                        upazilaNameBan,
+                        districtID,
+                        upazilaID,
+                    },
+                }
+            );
+            if (result.modifiedCount > 0) {
+                res.json({ success: true, message: "Profile updated successfully", result });
+            } else {
+                res.status(400).json({ success: false, message: "No changes made" });
+            }
+        } catch (error) {
+            res.status(500).json({ success: false, message: "Failed to update profile", error });
+        }
+    });
+    
+
+
+
+
+
       
 
-
+      
 
 
 
