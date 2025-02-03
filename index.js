@@ -255,6 +255,25 @@ async function run() {
             res.status(500).json({ error: "Internal Server Error" });
         }
     });
+
+// done and cencel
+    
+app.patch("/donation-requestsdoneCencel/:id", async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body; // ✅ Ensure status is coming from request body
+
+    try {
+        const result = await requestsCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { status } }  // ✅ Correct field update
+        );
+
+        res.json({ success: true, message: "Status updated successfully", result });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Failed to update status", error });
+    }
+});
+
     
       
 
