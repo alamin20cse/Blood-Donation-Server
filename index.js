@@ -2,7 +2,29 @@ const express=require('express');
 const app=express();
 const cors=require('cors');
 require('dotenv').config();
+const stripe=require('stripe')(process.env.STRIPE_SECRET_KEY)
+
+
+
+
 const port=process.env.PORT || 5000;
+
+
+
+
+
+//  MIDDLEWARE
+// const cors = require('cors');
+
+// app.use(cors({
+//     origin: 'http://localhost:5173', // Allow requests from your frontend
+//     credentials: true // Allow cookies/session authentication
+// }));
+
+
+
+
+
 
 
 
@@ -39,8 +61,45 @@ async function run() {
     const usersCollection=client.db('bloodDonationDB').collection('users');
     const requestsCollection=client.db('bloodDonationDB').collection('donation-requests');
     const blogCollection=client.db('bloodDonationDB').collection('blog');
+    const paymentCollection=client.db('bloodDonationDB').collection('payments');
 
 
+
+
+    // payment intent
+    app.post('/create-payment-intent',async(req,res)=>{
+        const {price}=req.body;
+        const amount=parseInt(price*100);
+        const paymentIntent=await stripe.paymentIntents.create({
+            amount:amount,
+            currency:'usd',
+            payment_method_types:['card']
+        });
+        res.send({
+            clientSecret:paymentIntent.client_secret
+    
+        })
+
+    })
+
+
+    // payment data
+    app.post('/payments',async(req,res)=>{
+        const payment=req.body;
+        const paymentResult=await paymentCollection.insertOne(payment)
+        
+
+        res.send(paymentResult)
+
+    })
+    // payment data
+    app.get('/payments',async(req,res)=>{
+     
+      const  cursor=paymentCollection.find();
+      const result=await cursor.toArray();
+      res.send(result);
+
+    })
 
 // districts get
 
@@ -51,7 +110,6 @@ async function run() {
 
 
     })
-
 
 
 //  get
@@ -142,7 +200,6 @@ async function run() {
             res.status(500).json({ success: false, message: "Failed to update profile", error });
         }
     });
-    
 
 
 
@@ -177,10 +234,34 @@ async function run() {
             res.status(500).json({ success: false, message: "Failed to update role", error });
         }
     });
-        
 
 
 
+// Search but error for this not used
+    // app.get("/alluserssearch", async (req, res) => {
+    //     try {
+    //         const { bloodgroup, district, upazila } = req.query;
+    
+    //         if (!bloodgroup || !district || !upazila) {
+    //             return res.status(400).json({ error: "Missing search parameters" });
+    //         }
+    
+    //         const query = {
+    //             bloodgroup: { $regex: new RegExp(bloodgroup, "i") },
+    //             district: { $regex: new RegExp(district, "i") },
+    //             upazila: { $regex: new RegExp(upazila, "i") },
+    //         };
+    
+    //         const usersCollection = db.collection("users");
+    //         const result = await usersCollection.find(query).toArray();
+            
+    //         res.send(result);
+    //     } catch (error) {
+    //         console.error("Error searching users:", error);
+    //         res.status(500).json({ error: "Internal Server Error" });
+    //     }
+    // });
+    
 
 
 
