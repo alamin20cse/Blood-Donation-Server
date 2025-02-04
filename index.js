@@ -2,13 +2,24 @@ const express=require('express');
 const app=express();
 const cors=require('cors');
 require('dotenv').config();
+const jwt=require('jsonwebtoken');
+const cookieParser=require('cookie-parser');
+const e = require('express');
 const stripe=require('stripe')(process.env.STRIPE_SECRET_KEY)
-
 
 
 
 const port=process.env.PORT || 5000;
 
+const corsOption = {
+    origin: [
+      'http://localhost:5173',
+    
+  
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200
+  };
 
 
 
@@ -29,8 +40,9 @@ const port=process.env.PORT || 5000;
 
 
 // MIDDLEWARE
-app.use(cors());
+app.use(cors(corsOption));
 app.use(express.json());
+app.use(cookieParser())
 
 
 
@@ -48,6 +60,40 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+
+const verifyToken= (req,res,next)=>{
+    const token=req.cookies?.token;
+    if(!token) return res.status(401).send({message:'unAuthorized access'})
+     jwt.verify(token,process.env.SECRET_KEY,(err,decoded)=>{
+   if(err) {
+     return res.status(401).send({message:'unAuthorized access'})
+   }
+   
+   req.user=decoded
+   
+   
+     })
+    
+   
+   
+   
+     next();
+   
+   }
+   
+
+
+
+
+
+
+
+
+
+
+
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -62,6 +108,44 @@ async function run() {
     const requestsCollection=client.db('bloodDonationDB').collection('donation-requests');
     const blogCollection=client.db('bloodDonationDB').collection('blog');
     const paymentCollection=client.db('bloodDonationDB').collection('payments');
+
+
+    // Auth releted api
+
+        // generate jwt
+        app.post('/jwt',async(req,res)=>{
+            const email=req.body;
+            // create token
+            const token= jwt.sign(email,process.env.SECRET_KEY,{expiresIn:'100d'})
+      
+            // console.log(token);
+            // res.send(token);
+            res.cookie('token',token,{
+              httpOnly:true,
+              secure:process.env.NODE_ENV==='production',
+              sameSite:process.env.NODE_ENV==='production'? 'none': 'strict'
+      
+      
+            }).send({success:true})
+          })
+      
+      
+          // logout cookie
+          // clear cookie
+          app.get('/logout',async(req,res)=>{
+            res.clearCookie('token',{
+             maxAge: 0,
+              secure:process.env.NODE_ENV==='production',
+              sameSite:process.env.NODE_ENV==='production'? 'none': 'strict'
+      
+            }).send({success:true})
+          })
+      
+
+
+
+
+
 
 
 
@@ -93,7 +177,7 @@ async function run() {
 
     })
     // payment data
-    app.get('/payments',async(req,res)=>{
+    app.get('/payments',verifyToken,async(req,res)=>{
      
       const  cursor=paymentCollection.find();
       const result=await cursor.toArray();
@@ -107,7 +191,6 @@ async function run() {
         const cursor=districtsCollection.find();
         const result=await cursor.toArray();
         res.send(result);
-
 
     })
 
@@ -132,7 +215,7 @@ async function run() {
    
     })
     // get user logged
-    app.get('/users',async(req,res)=>{
+    app.get('/users', verifyToken,async(req,res)=>{
         const email=req.query.email;
         const query={email:email};
 
@@ -143,7 +226,7 @@ async function run() {
 
 
     // get all user
-    app.get('/allusers',async(req,res)=>{
+    app.get('/allusers',verifyToken,async(req,res)=>{
        
         const result=await usersCollection.find().toArray();
         res.send(result);
@@ -157,6 +240,7 @@ async function run() {
         res.send(result);
       });
 
+    
 
       app.patch("/allusers/:id/edit", async (req, res) => {
         const { id } = req.params;
@@ -275,10 +359,6 @@ async function run() {
 
 
 
-
-
-
-
      // post donation-requests
      app.post('/donation-requests',async(req,res)=>{
         const newData=req.body;
@@ -289,14 +369,14 @@ async function run() {
 
     
     // get all donation-requests
-    app.get('/donation-requests',async(req,res)=>{
+    app.get('/donation-requests',verifyToken,async(req,res)=>{
        
         const result=await requestsCollection.find().toArray();
         res.send(result);
     })
 
 // get spacific by id donation request
-    app.get('/donation-requests/:id', async (req, res) => {
+    app.get('/donation-requests/:id',verifyToken, async (req, res) => {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
         const result = await requestsCollection.findOne(query);
@@ -401,7 +481,7 @@ app.patch("/donation-requestsdoneCencel/:id", async (req, res) => {
     
     // for request setion logged user will show
     
-    app.get('/donation-requests-logged-user',async(req,res)=>{
+    app.get('/donation-requests-logged-user',verifyToken,async(req,res)=>{
         const email=req.query.email;
         const query = { email: email }; // Filtering by donorEmail
 
