@@ -146,25 +146,38 @@ async function run() {
 
 
 
-
-
-
-
     // payment intent
-    app.post('/create-payment-intent',async(req,res)=>{
-        const {price}=req.body;
-        const amount=parseInt(price*100);
-        const paymentIntent=await stripe.paymentIntents.create({
-            amount:amount,
-            currency:'usd',
-            payment_method_types:['card']
-        });
-        res.send({
-            clientSecret:paymentIntent.client_secret
+    app.post('/create-payment-intent', async (req, res) => {
+        const { price } = req.body;
+        
+        // Ensure the price is a valid number and does not exceed the limit
+        const amount = parseInt(price * 100);  // Stripe expects the amount in cents
+        
+        const MAX_AMOUNT = 999999.99;  // Max limit in dollars
+        if (amount > MAX_AMOUNT * 100) {  // Convert max amount to cents
+            return res.status(400).send({
+                error: `Amount must be no more than ${MAX_AMOUNT} USD.`
+            });
+        }
     
-        })
+        try {
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card'],
+            });
+    
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        } catch (err) {
+            console.error("Error creating payment intent:", err);
+            res.status(500).send({
+                error: "Failed to create payment intent. Please try again."
+            });
+        }
+    });
 
-    })
 
 
     // payment data
@@ -376,13 +389,13 @@ async function run() {
     })
 
 // get spacific by id donation request
-    app.get('/donation-requests/:id',verifyToken, async (req, res) => {
+    app.get('/donation-requests/:id', async (req, res) => {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
         const result = await requestsCollection.findOne(query);
         res.send(result);
       });
-      
+    
 
       app.patch("/donation-requests/:id", async (req, res) => {
         try {
