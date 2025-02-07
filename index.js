@@ -4,7 +4,18 @@ const cors=require('cors');
 require('dotenv').config();
 const jwt=require('jsonwebtoken');
 const cookieParser=require('cookie-parser');
-const e = require('express');
+// const uploadRoutes = require("./routes/upload");
+// app.use("/api", uploadRoutes);
+
+
+
+
+
+
+
+
+
+
 const stripe=require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 
@@ -14,14 +25,14 @@ const port=process.env.PORT || 5000;
 const corsOption = {
     origin: [
       'http://localhost:5173',
+      'https://blood-donation-applicati-9d609.web.app',
+      'https://blood-donation-applicati-9d609.firebaseapp.com'
     
   
     ],
     credentials: true,
     optionsSuccessStatus: 200
   };
-
-
 
 
 //  MIDDLEWARE
@@ -108,6 +119,21 @@ async function run() {
     const requestsCollection=client.db('bloodDonationDB').collection('donation-requests');
     const blogCollection=client.db('bloodDonationDB').collection('blog');
     const paymentCollection=client.db('bloodDonationDB').collection('payments');
+
+
+
+
+    
+    
+
+    
+
+
+
+
+
+
+
 
 
     // Auth releted api
@@ -253,8 +279,6 @@ async function run() {
         res.send(result);
       });
 
-    
-
       app.patch("/allusers/:id/edit", async (req, res) => {
         const { id } = req.params;
         const {
@@ -396,7 +420,6 @@ async function run() {
         res.send(result);
       });
     
-
       app.patch("/donation-requests/:id", async (req, res) => {
         try {
             const { id } = req.params;
