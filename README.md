@@ -50,8 +50,7 @@ The Blood Donation Management System is a backend API built with Node.js, Expres
 
 ### 1. Clone the Repository
 ```sh
-git clone https://github.com/yourusername/blood-donation-api.git
-cd blood-donation-api
+git clone https://github.com/alamin20cse/Blood-Donation-Server
 
  2.**Live link of site**:
    
