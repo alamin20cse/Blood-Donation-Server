@@ -26,7 +26,8 @@ const corsOption = {
     origin: [
       'http://localhost:5173',
       'https://blood-donation-applicati-9d609.web.app',
-      'https://blood-donation-applicati-9d609.firebaseapp.com'
+      'https://blood-donation-applicati-9d609.firebaseapp.com',
+      'http://localhost:5174/'
     
   
     ],
@@ -71,7 +72,24 @@ const client = new MongoClient(uri, {
   }
 });
 
+/*
+ 
+Store ID: bistr67ab628c506cc
+Store Password (API/Secret Key): bistr67ab628c506cc@ssl
 
+
+Merchant Panel URL: https://sandbox.sslcommerz.com/manage/ (Credential as you inputted in the time of registration)
+
+
+ 
+Store name: testbistrngzj
+Registered URL: www.bistroboss.com
+Session API to generate transaction: https://sandbox.sslcommerz.com/gwprocess/v3/api.php
+Validation API: https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php?wsdl
+Validation API (Web Service) name: https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php
+ 
+
+*/
 
 const verifyToken= (req,res,next)=>{
     const token=req.cookies?.token;
@@ -253,6 +271,8 @@ async function run() {
         
    
     })
+
+
     // get user logged
     app.get('/users', verifyToken,async(req,res)=>{
         const email=req.query.email;
@@ -261,6 +281,32 @@ async function run() {
         const result=await usersCollection.find(query).toArray();
         res.send(result);
     })
+
+
+   // Import necessary modules
+app.patch('/users/login-time', async (req, res) => {
+    try {
+        const { email } = req.body; // Get email from the request body
+        const loginTime = new Date().toISOString(); // Get the current login time
+
+        // Update the login time in the database
+        const result = await usersCollection.updateOne(
+            { email: email }, // Find the user by email
+            { $set: { loginTime: loginTime } } // Set the loginTime to the current time
+        );
+
+        if (result.modifiedCount > 0) {
+            res.status(200).send({ message: 'Login time updated successfully' });
+        } else {
+            res.status(404).send({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error updating login time:', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+});
+
+   
 
 
 
